@@ -1,0 +1,113 @@
+{
+  "id": "campus",
+  "title": "校园漫游",
+  "summary": "主校区三大场景连线漫游：楼前广场 → 教学楼大厅 → 田径运动场",
+  "order": [
+    "lobby",
+    "plaza",
+    "field"
+  ],
+  "audio": {
+    "enabled": false,
+    "src": "audio/bgm.mp3",
+    "autoplay": false,
+    "volume": 0.5
+  },
+  "scenes": [
+    {
+      "id": "plaza",
+      "title": "楼前广场",
+      "description": "校园主入口 · 主教学楼前，集会与合影的常用场地。",
+      "panorama": "panos/plaza.png",
+      "initialView": {
+        "yaw": 0.6,
+        "pitch": 6.3,
+        "fov": 75
+      },
+      "hotspots": [
+        {
+          "type": "scene",
+          "label": "进入教学楼",
+          "target": "lobby",
+          "yaw": 0.1,
+          "pitch": 4.2
+        },
+        {
+          "type": "info",
+          "label": "主教学楼",
+          "title": "主教学楼",
+          "yaw": -29.6,
+          "pitch": 16.4,
+          "text": "校园主教学楼，承担日常教学与实验课程。楼前广场是集会与合影的常用场地。",
+          "image": "",
+          "link": ""
+        },
+        {
+          "type": "info",
+          "label": "新信息点",
+          "yaw": 78.4,
+          "pitch": 8.1,
+          "title": "新信息点",
+          "text": ""
+        }
+      ]
+    },
+    {
+      "id": "lobby",
+      "title": "教学楼大厅",
+      "description": "挑高通透的共享大厅，连接教学区与公共功能区。",
+      "panorama": "panos/lobby.png",
+      "initialView": {
+        "yaw": 0.1,
+        "pitch": 3.1,
+        "fov": 75
+      },
+      "hotspots": [
+        {
+          "type": "scene",
+          "label": "返回楼前广场",
+          "target": "plaza",
+          "yaw": 1.1,
+          "pitch": 0.1
+        },
+        {
+          "type": "scene",
+          "label": "前往操场",
+          "target": "field",
+          "yaw": 90,
+          "pitch": -5
+        }
+      ]
+    },
+    {
+      "id": "field",
+      "title": "田径运动场",
+      "description": "黄昏下的 400 米标准跑道与绿茵足球场。",
+      "panorama": "panos/field.png",
+      "initialView": {
+        "yaw": 0,
+        "pitch": 0,
+        "fov": 75
+      },
+      "hotspots": [
+        {
+          "type": "scene",
+          "label": "返回教学楼",
+          "target": "lobby",
+          "yaw": -2.2,
+          "pitch": -4.1
+        },
+        {
+          "type": "info",
+          "label": "标准田径场",
+          "title": "标准田径场",
+          "yaw": -70,
+          "pitch": 5,
+          "text": "400 米标准跑道环绕绿茵足球场，看台可容纳全校集会，黄昏时分尤为壮观。",
+          "image": "",
+          "link": ""
+        }
+      ]
+    }
+  ]
+}

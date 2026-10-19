@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%2338bdf8'/%3E%3Ctext x='16' y='21' font-size='11' font-weight='bold' text-anchor='middle' fill='%2304222e' font-family='sans-serif'%3E360%3C/text%3E%3C/svg%3E" />
+  <title>校园漫游 · 720° 全景</title>
+  <script type="module" crossorigin src="./assets/index-Cbl-U_oL.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-4X8pJFnc.css">
+</head>
+<body>
+  <div id="app">
+
+    <!-- ========== 视图一：项目列表（首页） ========== -->
+    <section id="home-view" class="view view--home">
+      <div class="home-wrap">
+        <header class="home-header">
+          <p class="home-eyebrow">720° PANORAMA TOUR</p>
+          <h1 class="home-title">全景漫游</h1>
+          <p class="home-sub">选择一个项目，开始游览</p>
+        </header>
+        <main class="project-grid" id="project-grid"></main>
+        <p class="home-error" id="home-error" hidden></p>
+      </div>
+
+      <!-- 新增项目对话框（仅本地开发模式，由首页「+ 新增项目」打开） -->
+      <div id="project-dialog" class="proj-dialog" hidden>
+        <form class="proj-dialog__box" novalidate>
+          <h2>新增项目</h2>
+          <p class="proj-dialog__tip">
+            将创建 <code>public/projects/&lt;id&gt;/project.json</code> 并登记到 <code>projects/index.json</code>；
+            创建后直接进入漫游页，用场景行里的「上传图片」补齐全景图。
+          </p>
+          <label class="ed-field">
+            <span>项目名称</span>
+            <input type="text" data-field="title" maxlength="30" placeholder="例如：校园漫游" />
+          </label>
+          <label class="ed-field">
+            <span>目录 id（字母 / 数字 / - / _）</span>
+            <input type="text" data-field="id" maxlength="32" placeholder="例如：campus" />
+          </label>
+          <label class="ed-field">
+            <span>简介（可选）</span>
+            <textarea data-field="summary" rows="2" maxlength="120" placeholder="一句话介绍这个项目"></textarea>
+          </label>
+          <p class="proj-dialog__error" data-error hidden></p>
+          <div class="proj-dialog__acts">
+            <button type="button" class="ed-btn" data-act="cancel">取消</button>
+            <button type="submit" class="ed-btn ed-btn--primary" data-act="submit">创建</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ========== 视图二：漫游页 ========== -->
+    <section id="tour-view" class="view view--tour" hidden>
+      <!-- 全景画布 -->
+      <canvas id="pano-canvas"></canvas>
+
+      <!-- 热点叠加层（由 JS 动态生成） -->
+      <div id="hotspot-layer"></div>
+
+      <!-- 可视化编辑面板（仅本地开发模式） -->
+      <aside id="editor-panel" class="editor-panel" hidden></aside>
+
+      <!-- 热点点画面定位提示 -->
+      <div id="place-hint" class="place-hint" hidden></div>
+
+      <!-- 顶部：返回 + 场景标题 + 操作按钮 -->
+      <header id="topbar">
+        <div class="topbar-left">
+          <button id="btn-back" class="icon-btn" type="button" title="返回项目列表">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M11 18l-6-6 6-6"/></svg>
+          </button>
+          <!-- 编辑入口：仅本地开发模式显示（探测到 /__editor 接口才出现） -->
+          <button id="btn-edit" class="icon-btn icon-btn--text" type="button" title="编辑当前项目" hidden>编辑</button>
+          <div class="scene-title">
+            <div class="scene-title-text">
+              <h1 id="scene-name">加载中</h1>
+            </div>
+          </div>
+        </div>
+        <div class="top-actions">
+          <button id="btn-music" class="icon-btn" type="button" hidden title="背景音乐">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 18V5l12-2v13" />
+              <circle cx="6" cy="18" r="3" />
+              <circle cx="18" cy="16" r="3" />
+            </svg>
+          </button>
+          <button id="btn-fullscreen" class="icon-btn" type="button" title="全屏 / 退出全屏">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3" />
+              <path d="M16 3h3a2 2 0 0 1 2 2v3" />
+              <path d="M8 21H5a2 2 0 0 1-2-2v-3" />
+              <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- 操作提示 -->
+      <div id="drag-hint" class="is-hidden">拖动浏览 · 滚轮 / 双指缩放</div>
+
+      <!-- 信息热点面板（支持文字 / 图片 / 外链） -->
+      <aside id="info-panel">
+        <div class="info-head">
+          <h2 id="info-title"></h2>
+          <button id="info-close" class="info-close" type="button" aria-label="关闭">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12"/><path d="M18 6L6 18"/></svg>
+          </button>
+        </div>
+        <img id="info-image" class="info-image" alt="" hidden />
+        <p id="info-text"></p>
+        <a id="info-link" class="info-link" target="_blank" rel="noopener" hidden>查看详情 →</a>
+      </aside>
+
+      <!-- 底部场景导航 -->
+      <nav id="scene-nav"></nav>
+
+      <!-- 项目配置错误提示 -->
+      <div id="tour-error" class="tour-error" hidden>
+        <div class="tour-error__box">
+          <h2>项目加载失败</h2>
+          <p id="tour-error-text"></p>
+          <a class="tour-error__back" href="#/">← 返回项目列表</a>
+        </div>
+      </div>
+
+      <!-- 加载 / 场景切换遮罩 -->
+      <div id="veil">
+        <div class="veil-box">
+          <div class="veil-ring"></div>
+          <p id="veil-text">正在加载项目…</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+</body>
+</html>
